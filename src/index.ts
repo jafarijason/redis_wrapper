@@ -14,6 +14,10 @@ export const redisWrapperInit = (redisClientName: String, redisConnectConfig, ot
 
 
     if (!_.has(redisWrapperDbs, redisClientName)) {
+        if(!redisConnectConfig.host){
+            console.error('redisConnectConfig is not correct')
+            return
+        }
         const dbObj = {
             redisClientName,
             redisConnectConfig,
@@ -38,10 +42,6 @@ export const redisWrapperInit = (redisClientName: String, redisConnectConfig, ot
 
             },
             client: null,
-            getClient: function () {
-                this.init()
-                return this.client
-            },
             testConnection: async function () {
                 this.init()
                 const testResult = await this.client.ping().catch((err) => {
@@ -52,7 +52,7 @@ export const redisWrapperInit = (redisClientName: String, redisConnectConfig, ot
                 redisWrapperDebug(`testResult ${this.redisClientName} ${result}`)
                 return result
             },
-            waitForConnection: async function (timeOut = 10) {
+            waitForConnection: async function (timeOut) {
                 console.log(`Wait for connection ${this.redisClientName}`)
                 const startTime = Date.now();
                 let counter = 0
@@ -77,10 +77,7 @@ export const redisWrapperInit = (redisClientName: String, redisConnectConfig, ot
         _.set(redisWrapperDbs, redisClientName, dbObj)
         dbObj.init()
 
-        return dbObj
     }
-
-    return _.get(redisWrapperDbs, redisClientName)
 
 
 }
@@ -133,7 +130,7 @@ export const testConnectionRedisWrapperSession = async (redisClientName: string)
     return await redisObj.testConnection()
 }
 
-export const testConnectionRedisWrapperAllSessions = async (redisClientName: string) => {
+export const testConnectionRedisWrapperAllSessions = async () => {
     const result = await Promise.all(Object.keys(redisWrapperDbs).map((redisClientName) => testConnectionRedisWrapperSession(redisClientName)))
     if (result.includes(false) || result.includes(null)) {
         return false
