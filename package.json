@@ -1,5 +1,5 @@
 {
-  "name": "redis_wrapper",
+  "name": "tmp_redis_wrapper",
   "description": "A wrapper for redis client",
   "version": "1.0.1",
   "author": "Jason Jafari",
