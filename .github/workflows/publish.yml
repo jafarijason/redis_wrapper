@@ -61,14 +61,17 @@ jobs:
             git add package.json
             git commit -m "Bump version to $VERSION"
 
-            # Create a tag
-            git tag v$VERSION
-
-            # Push the changes and tag
             git push origin master
-            git push origin master --tags
 
-            # Publish the package
-            npm publish
+            git status
+            ls -la
+            # # Create a tag
+            # git tag v$VERSION
+
+            # # Push the changes and tag
+            # git push origin master --tags
+
+            # # Publish the package
+            # npm publish
           fi
         shell: /usr/bin/bash -e {0}
