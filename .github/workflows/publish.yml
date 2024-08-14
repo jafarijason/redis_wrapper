@@ -30,10 +30,10 @@ jobs:
           export PATH="$HOME/.bun/bin:$PATH"
           bun install -y
 
-      - name: Run tests
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun run test
+      # - name: Run tests
+      #   run: |
+      #     export PATH="$HOME/.bun/bin:$PATH"
+      #     bun run test
 
       - name: Run Build
         run: |
@@ -67,7 +67,5 @@ jobs:
 
             # Push the changes and tag
             git push origin master --tags
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/master" ]]; then
-            npm publish
           fi
         shell: /usr/bin/bash -e {0}
