@@ -25,16 +25,21 @@ jobs:
           source /home/runner/.bashrc
 
       - name: Install dependencies
-        run: bun install -y
+        run: |
+          source /home/runner/.bashrc
+          bun install -y
 
       - name: Run tests
-        run: bun run test
+        run: |
+          source /home/runner/.bashrc
+          bun run test
 
       - name: Bump version, commit, tag, and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          source /home/runner/.bashrc
           if [[ $GITHUB_EVENT_NAME == "pull_request" && ${{ github.event.pull_request.merged }} == "true" ]]; then
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
