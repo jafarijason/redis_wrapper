@@ -50,10 +50,10 @@ jobs:
           # Configure Git to use PAT for authentication
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
 
           # Bump version, commit, and tag only if it's a merged PR
           if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
+            git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
             git push
