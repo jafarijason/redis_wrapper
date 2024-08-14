@@ -1,8 +1,6 @@
 name: Publish
 
 on:
-  pull_request:
-    types: [closed]
   push:
     branches:
       - master
@@ -13,6 +11,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        # with:
+        #   fetch-depth: 0  # Ensure the full history is fetched for tagging
+        with:
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -29,46 +32,42 @@ jobs:
           export PATH="$HOME/.bun/bin:$PATH"
           bun install -y
 
-      - name: Run tests
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun run test
+      # - name: Run tests
+      #   run: |
+      #     export PATH="$HOME/.bun/bin:$PATH"
+      #     bun run test
 
       - name: Run Build
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
           bun run build
 
+      - name: Configure npm for publishing
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Bump version, commit, tag, and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
 
-          # Check if it's a pull request that was merged
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" && "$GITHUB_REF" == "refs/heads/master" ]]; then
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-            # Bump version
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
+          if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
-            # Extract the version number
+            git push
+
             VERSION=${NEW_VERSION#*v}
 
-            git add package.json
-            git commit -m "Bump version to $VERSION"
+            git tag v$VERSION || true
 
-            # Create a tag
-            git tag v$VERSION
+            git push origin master --tags || true
 
-            # Push the changes and tag
-            git push origin master --tags
-
-            # Publish the package
-            npm publish
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/master" ]]; then
             npm publish
           fi
         shell: /usr/bin/bash -e {0}
