@@ -51,7 +51,6 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
 
           # Get the latest commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
