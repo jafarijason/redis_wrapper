@@ -1,7 +1,7 @@
 {
   "name": "tmp_redis_wrapper",
   "description": "A wrapper for redis client",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "author": "Jason Jafari",
   "bin": {},
   "bugs": "https://github.com/jafarijason/redis_wrapper/issues",
@@ -10,12 +10,12 @@
   },
   "homepage": "https://github.com/jafarijason/redis_wrapper",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "repository": "https://github.com/jafarijason/redis_wrapper",
   "scripts": {
-    "build": "esbuild ./src/index.ts   --outdir=dist --platform=node --target=node14     && tsc --emitDeclarationOnly --declarationDir dist",
+    "build": "rm -rf ./dist ; esbuild ./src/index.ts   --outfile=dist/index.mjs --platform=node --target=node14 --format=esm && tsc --emitDeclarationOnly --declarationDir dist",
     "serve:coverage": "http-server coverage -p 7777",
-    "test": "rm -rf ./dist ; bun run build && jest --config jest.config.ts --coverage"
+    "test": "bun jest --config jest.config.ts "
   },
   "dependencies": {
     "debug": "^4.3.6",

@@ -28,14 +28,15 @@ describe('Redis Wrapper Tests', () => {
         redisWrapperEndAllSessions();
     });
 
-    test('should initialize Redis client and test connection works', async () => {
+    test('test connect', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         const client = getRedisWrapperClient(redisClientName)
         expect(client).toBeDefined();
         const result = await testConnectionRedisWrapperSession(redisClientName)
         expect(result).toBe(true)
     });
-    test('should initialize Redis client and test connection for all sessions', async () => {
+
+    test('test connect all sessions', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         redisWrapperInit(redisClientName, redisConnectConfig);
         const client = getRedisWrapperClient(redisClientName)
@@ -44,36 +45,28 @@ describe('Redis Wrapper Tests', () => {
         expect(result).toBe(true)
     });
 
-
-
-
-    test('should initialize Redis client and test connection not works if ping not response PONG', async () => {
-
+    test('test connect for false response', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         const client = getRedisWrapperClient(redisClientName)
         expect(client).toBeDefined();
         await setTimeout(500)
         client.ping = jest.fn().mockResolvedValue('NOT_PONG');
-
         const result = await testConnectionRedisWrapperSession(redisClientName);
         expect(result).toBe(false);
 
     });
-    test('should initialize Redis client and test connection if ping error', async () => {
 
+    test('test connect for error response', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         const client = getRedisWrapperClient(redisClientName)
         expect(client).toBeDefined();
         await setTimeout(500)
         client.ping = jest.fn().mockRejectedValue('error');
-
         const result = await testConnectionRedisWrapperSession(redisClientName);
         expect(result).toBe(false);
-
     });
 
-
-    test('should initialize Redis client and test connection for all sessions', async () => {
+    test('test connect for error response for all sessions', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         redisWrapperInit(`${redisClientName}1`, redisConnectConfig);
         const client = getRedisWrapperClient(`${redisClientName}1`)
@@ -81,48 +74,58 @@ describe('Redis Wrapper Tests', () => {
         await setTimeout(500)
         client.ping = jest.fn().mockRejectedValue('error');
         const result = await testConnectionRedisWrapperAllSessions()
-
         expect(result).toBe(false)
     });
 
-    test('should waitForRedisWrapperAllSessions  ', async () => {
+    test('test redis functionality for 1 client', async () => {
+        redisWrapperInit(redisClientName, redisConnectConfig);
+        await waitForRedisWrapperSession(redisClientName, 1)
+        const client = getRedisWrapperClient(redisClientName)
+        await client.set('test_key', 'test_value')
+        const value = await client.get('test_key')
+        expect(value).toBe('test_value')
+    });
+
+    test('test redis functionality for multiple clients', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         redisWrapperInit(`${redisClientName}1`, redisConnectConfig);
         await waitForRedisWrapperAllSessions()
+        const client = getRedisWrapperClient(redisClientName)
+        await client.set('test_key', 'test_value')
+        const value = await client.get('test_key')
+        expect(value).toBe('test_value')
+        const client1 = getRedisWrapperClient(`${redisClientName}1`)
+        await client1.set('test_key', 'test_value')
+        const value1 = await client1.get('test_key')
+        expect(value1).toBe('test_value')
     });
-    test('should waitForRedisWrapperSession  ', async () => {
-        redisWrapperInit(redisClientName, redisConnectConfig);
-        await waitForRedisWrapperSession(redisClientName, 1)
-    });
-    test('should redisWrapperEndSession  ', async () => {
+
+    test('test redisWrapperEndSession  ', async () => {
         redisWrapperInit('test', {});
         const result = redisWrapperEndSession('test')
-
-
         expect(result).toBe(null);
     });
-    test('should testConnectionRedisWrapperSession  ', async () => {
+
+    test('test testConnectionRedisWrapperSession if there are miss configuration', async () => {
         redisWrapperInit('test', {});
         const result = await testConnectionRedisWrapperSession('test')
 
 
         expect(result).toBe(null);
     });
-    test('should waitForRedisWrapperSession  ', async () => {
+
+    test('test waitForRedisWrapperSession if there are miss configuration', async () => {
         redisWrapperInit('test', {});
         const result = await waitForRedisWrapperSession('test')
-
-
         expect(result).toBe(null);
     });
 
-    test('should waitForRedisWrapperAllSessions  ', async () => {
+    test('test waitForRedisWrapperAllSessions when error comes', async () => {
         redisWrapperInit(redisClientName, redisConnectConfig);
         redisWrapperInit(`${redisClientName}1`, redisConnectConfig);
         const client = getRedisWrapperClient(`${redisClientName}1`)
         client.ping = jest.fn().mockRejectedValue('error');
         await setTimeout(500)
-        // Set up a function to catch the thrown error
         const waitForAllSessions = async () => {
             try {
                 await waitForRedisWrapperAllSessions(1);
@@ -131,14 +134,13 @@ describe('Redis Wrapper Tests', () => {
             }
         };
 
-        // Run the test and expect it to throw an error
         const error = await waitForAllSessions();
         expect(error).toBeDefined();
         expect(error.message).toBe('can not connect for testClient1 after 1 Sec');
     });
 
 
-    test('Coverage test', async () => {
+    test('test getRedisWrapperClient if there are miss configuration', async () => {
         const client = getRedisWrapperClient(redisClientName)
         expect(client).toBeDefined();
     });
