@@ -5,7 +5,7 @@ on:
     types: [closed]
   push:
     branches:
-      - main
+      - test
 
 jobs:
   build:
@@ -18,18 +18,28 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          export PATH="$HOME/.bun/bin:$PATH"
+          export PATH="$HOME/.bun/bin:$PATH"
 
       - name: Install dependencies
-        run: yarn install
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun install -y
 
       - name: Run tests
-        run: yarn run test
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun run test
 
       - name: Bump version, commit, tag, and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          export PATH="$HOME/.bun/bin:$PATH"
           if [[ $GITHUB_EVENT_NAME == "pull_request" && ${{ github.event.pull_request.merged }} == "true" ]]; then
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
@@ -54,3 +64,4 @@ jobs:
           elif [[ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/main" ]]; then
             npm publish
           fi
+
