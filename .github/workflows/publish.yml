@@ -42,6 +42,9 @@ jobs:
           export PATH="$HOME/.bun/bin:$PATH"
           bun run build
 
+      - name: Configure npm for publishing
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Bump version, commit, tag, and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -49,33 +52,22 @@ jobs:
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
 
-          # Configure Git to use PAT for authentication
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # # Install and configure gh CLI
-          # sudo apt-get install gh
-          # gh auth login --with-token <<< $GITHUB_TOKEN
-
-          # Get the latest commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
 
-          # Bump version, commit, and tag only if it's a merged PR
           if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
-            # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
             git push
 
-            # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
             git tag v$VERSION || true
 
-            # Push the changes and tag using gh CLI
             git push origin master --tags || true
 
-            # Publish the package
             npm publish
           fi
         shell: /usr/bin/bash -e {0}
