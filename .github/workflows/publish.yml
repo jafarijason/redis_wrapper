@@ -33,7 +33,7 @@ jobs:
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
           bun run test
-      - name: Run tests
+      - name: Run Build
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
           bun run build
@@ -42,11 +42,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bump version, commit, tag, and publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
-          if [[ $GITHUB_EVENT_NAME == "pull_request" && ${{ github.event.pull_request.merged }} == "true"  && $GITHUB_REF == "refs/heads/master"]]; then
+
+          # Check if it's a pull request that was merged
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" && "$GITHUB_REF" == "refs/heads/master" ]]; then
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
+
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
@@ -64,7 +71,8 @@ jobs:
 
             # Publish the package
             npm publish
-          elif [[ $GITHUB_EVENT_NAME == "push" && $GITHUB_REF == "refs/heads/main" ]]; then
+          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
             npm publish
           fi
+        shell: /usr/bin/bash -e {0}
 
