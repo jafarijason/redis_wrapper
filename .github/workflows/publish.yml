@@ -70,10 +70,10 @@ jobs:
             # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
-            git tag v$VERSION
+            git tag v$VERSION || true
 
             # Push the changes and tag using gh CLI
-            git push origin master
+            git push origin master --tags || true
 
             # Publish the package
             npm publish
