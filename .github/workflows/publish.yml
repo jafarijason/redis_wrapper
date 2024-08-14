@@ -65,6 +65,7 @@ jobs:
             git tag v$VERSION
 
             # Push the changes and tag
+            git push origin master
             git push origin master --tags
 
             # Publish the package
