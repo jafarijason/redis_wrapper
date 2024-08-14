@@ -61,7 +61,7 @@ jobs:
             git add package.json
             git commit -m "Bump version to $VERSION"
 
-            git push origin master
+            git push
 
             git status
             ls -la
