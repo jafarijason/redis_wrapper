@@ -75,3 +75,4 @@ jobs:
             # npm publish
           fi
         shell: /usr/bin/bash -e {0}
+
