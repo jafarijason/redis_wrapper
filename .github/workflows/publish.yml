@@ -22,7 +22,7 @@ jobs:
         run: |
           curl -fsSL https://bun.sh/install | bash
           export PATH="$HOME/.bun/bin:$PATH"
-          source /home/runner/.bashrc
+          export PATH="$HOME/.bun/bin:$PATH"
 
       - name: Install dependencies
         run: |
@@ -31,7 +31,7 @@ jobs:
 
       - name: Run tests
         run: |
-          source /home/runner/.bashrc
+          export PATH="$HOME/.bun/bin:$PATH"
           bun run test
 
       - name: Bump version, commit, tag, and publish
@@ -39,7 +39,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          source /home/runner/.bashrc
+          export PATH="$HOME/.bun/bin:$PATH"
           if [[ $GITHUB_EVENT_NAME == "pull_request" && ${{ github.event.pull_request.merged }} == "true" ]]; then
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
