@@ -32,10 +32,10 @@ jobs:
           export PATH="$HOME/.bun/bin:$PATH"
           bun install -y
 
-      # - name: Run tests
-      #   run: |
-      #     export PATH="$HOME/.bun/bin:$PATH"
-      #     bun run test
+      - name: Run tests
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun run test
 
       - name: Run Build
         run: |
