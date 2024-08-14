@@ -65,6 +65,8 @@ jobs:
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
+            git push
+
             # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
@@ -74,7 +76,6 @@ jobs:
 
             # Push the changes and tag using gh CLI
             git push origin master
-            gh release create v$VERSION
 
             # Publish the package
             npm publish
