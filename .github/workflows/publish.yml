@@ -49,6 +49,9 @@ jobs:
           # Configure Git to use PAT for authentication
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
+
+          # Install and configure gh CLI
+          sudo apt-get install gh
           gh auth login --with-token <<< $GITHUB_TOKEN
 
           # Get the latest commit message
