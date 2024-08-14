@@ -70,8 +70,6 @@ jobs:
             # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
-            git add package.json
-            git commit -m "Bump version to $VERSION"
             git tag v$VERSION
 
             # Push the changes and tag using gh CLI
