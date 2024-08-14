@@ -1,6 +1,7 @@
 name: Publish
 
 on:
+
   push:
     branches:
       - master
@@ -11,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensure the full history is fetched for tagging
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -40,39 +43,31 @@ jobs:
       - name: Bump version, commit, tag, and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          CUSTOM_GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}  # Personal Access Token (PAT) secret
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
 
-          # Get the commit message to determine if it was from a PR merge
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          # Configure Git to use PAT for authentication
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
 
-          # Check if it's a merge commit
+          # Bump version, commit, and tag only if it's a merged PR
           if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
-
             git push
+
             # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
             git add package.json
             git commit -m "Bump version to $VERSION"
+            git tag v$VERSION
 
-
-            git status
-            ls -la
-            # # Create a tag
-            # git tag v$VERSION
-
-            # # Push the changes and tag
-            # git push origin master --tags
-
-            # # Publish the package
-            # npm publish
+            # Push the changes and tag
+            git push origin master --tags
+          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/master" ]]; then
+            npm publish
           fi
         shell: /usr/bin/bash -e {0}
-
