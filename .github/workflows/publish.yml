@@ -51,6 +51,11 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+          git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
+
+          # Get the latest commit message
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
           # Bump version, commit, and tag only if it's a merged PR
           if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
             git remote set-url origin https://$CUSTOM_GITHUB_TOKEN@github.com/${{ github.repository }}
