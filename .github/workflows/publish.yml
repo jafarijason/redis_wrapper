@@ -3,9 +3,9 @@ name: Publish
 on:
   pull_request:
     types: [closed]
-  # push:
-  #   branches:
-  #     - test
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -18,10 +18,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
-          export PATH="$HOME/.bun/bin:$PATH"
           export PATH="$HOME/.bun/bin:$PATH"
 
       - name: Install dependencies
@@ -33,11 +33,11 @@ jobs:
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
           bun run test
+
       - name: Run Build
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
           bun run build
-
 
       - name: Bump version, commit, tag, and publish
         env:
@@ -68,8 +68,7 @@ jobs:
 
             # Publish the package
             npm publish
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/master" ]]; then
             npm publish
           fi
         shell: /usr/bin/bash -e {0}
-
