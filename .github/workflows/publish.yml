@@ -11,8 +11,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        # with:
+        #   fetch-depth: 0  # Ensure the full history is fetched for tagging
         with:
-          fetch-depth: 0  # Ensure the full history is fetched for tagging
+          token: ${{ secrets.PAT }}
+
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -50,9 +53,9 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          # Install and configure gh CLI
-          sudo apt-get install gh
-          gh auth login --with-token <<< $GITHUB_TOKEN
+          # # Install and configure gh CLI
+          # sudo apt-get install gh
+          # gh auth login --with-token <<< $GITHUB_TOKEN
 
           # Get the latest commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
