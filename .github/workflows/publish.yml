@@ -55,13 +55,13 @@ jobs:
             # Bump version
             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
+            git push
             # Extract the version number
             VERSION=${NEW_VERSION#*v}
 
             git add package.json
             git commit -m "Bump version to $VERSION"
 
-            git push
 
             git status
             ls -la
