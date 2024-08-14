@@ -1,8 +1,6 @@
 name: Publish
 
 on:
-  pull_request:
-    types: [closed]
   push:
     branches:
       - master
@@ -46,8 +44,11 @@ jobs:
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
 
-          # Check if it's a pull request that was merged
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" && "$GITHUB_REF" == "refs/heads/master" ]]; then
+          # Get the commit message to determine if it was from a PR merge
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+
+          # Check if it's a merge commit
+          if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
 
@@ -67,8 +68,6 @@ jobs:
             git push origin master --tags
 
             # Publish the package
-            npm publish
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/master" ]]; then
             npm publish
           fi
         shell: /usr/bin/bash -e {0}
