@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          source /home/runner/.bashrc
+          export PATH="$HOME/.bun/bin:$PATH"
           bun install -y
 
       - name: Run tests
