@@ -1,73 +1,73 @@
-name: Publish
+# name: Publish
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        # with:
-        #   fetch-depth: 0  # Ensure the full history is fetched for tagging
-        with:
-          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+#         # with:
+#         #   fetch-depth: 0  # Ensure the full history is fetched for tagging
+#         with:
+#           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20'
 
-      - name: Install Bun
-        run: |
-          curl -fsSL https://bun.sh/install | bash
-          export PATH="$HOME/.bun/bin:$PATH"
+#       - name: Install Bun
+#         run: |
+#           curl -fsSL https://bun.sh/install | bash
+#           export PATH="$HOME/.bun/bin:$PATH"
 
-      - name: Install dependencies
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun install -y
+#       - name: Install dependencies
+#         run: |
+#           export PATH="$HOME/.bun/bin:$PATH"
+#           bun install -y
 
-      - name: Run tests
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun run test
+#       - name: Run tests
+#         run: |
+#           export PATH="$HOME/.bun/bin:$PATH"
+#           bun run test
 
-      - name: Run Build
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
-          bun run build
+#       - name: Run Build
+#         run: |
+#           export PATH="$HOME/.bun/bin:$PATH"
+#           bun run build
 
-      - name: Configure npm for publishing
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-      - name: Bump version, commit, tag, and publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-        run: |
-          export PATH="$HOME/.bun/bin:$PATH"
+#       - name: Configure npm for publishing
+#         run: |
+#           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+#       - name: Bump version, commit, tag, and publish
+#         env:
+#           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+#           GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+#         run: |
+#           export PATH="$HOME/.bun/bin:$PATH"
 
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+#           git config user.name "GitHub Actions"
+#           git config user.email "actions@github.com"
 
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+#           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
 
-          if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
-            NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
+#           if [[ "$COMMIT_MESSAGE" == Merge* ]]; then
+#             NEW_VERSION=$(npm version patch -m "Upgrade to %s [skip ci]")
 
-            git push
+#             git push
 
-            VERSION=${NEW_VERSION#*v}
+#             VERSION=${NEW_VERSION#*v}
 
-            git tag v$VERSION || true
+#             git tag v$VERSION || true
 
-            git push origin master --tags || true
+#             git push origin master --tags || true
 
-            npm publish
-          fi
-        shell: /usr/bin/bash -e {0}
+#             npm publish
+#           fi
+#         shell: /usr/bin/bash -e {0}
