@@ -15,7 +15,7 @@
   "scripts": {
     "build": "rm -rf ./dist ; esbuild ./src/index.ts   --outfile=dist/index.mjs --platform=node --target=node14 --format=esm && tsc --emitDeclarationOnly --declarationDir dist",
     "serve:coverage": "http-server coverage -p 7777",
-    "test": "bun jest --config jest.config.ts "
+    "test": "bun run build ; bun jest --config jest.config.ts "
   },
   "dependencies": {
     "debug": "^4.3.6",
